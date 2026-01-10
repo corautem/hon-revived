@@ -318,6 +318,29 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             device_class=SensorDeviceClass.ENUM,
             translation_key="programs_ov",
         ),
+        HonSensorEntityDescription(
+            key="tempEmployedProbe1",
+            name="Probe 1 Temperature",
+            icon="mdi:thermometer-probe",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            state_class=SensorStateClass.MEASUREMENT,
+            translation_key="probe_1_temperature",
+        ),
+        HonSensorEntityDescription(
+            key="signalEmployedProbe1",
+            name="Probe 1 Signal",
+            icon="mdi:signal",
+            translation_key="probe_1_signal",
+        ),
+        HonSensorEntityDescription(
+            key="batteryLevelEmployedProbe1",
+            name="Probe 1 Battery",
+            icon="mdi:battery",
+            device_class=SensorDeviceClass.BATTERY,
+            native_unit_of_measurement=PERCENTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+            translation_key="probe_1_battery",
+        ),
     ),
     "IH": (
         HonSensorEntityDescription(
@@ -830,7 +853,8 @@ async def async_setup_entry(
             elif isinstance(description, HonConfigSensorEntityDescription):
                 if description.key not in device.available_settings:
                     continue
-                entity = HonConfigSensorEntity(hass, entry, device, description)
+                entity = HonConfigSensorEntity(
+                    hass, entry, device, description)
             else:
                 continue
             entities.append(entity)
@@ -849,7 +873,8 @@ class HonSensorEntity(HonEntity, SensorEntity):
                 raise ValueError
             self._attr_options = options.values + ["No Program"]
         elif self.entity_description.option_list is not None:
-            self._attr_options = list(self.entity_description.option_list.values())
+            self._attr_options = list(
+                self.entity_description.option_list.values())
             value = str(get_readable(self.entity_description, value))
         if not value and self.entity_description.state_class is not None:
             self._attr_native_value = 0
@@ -879,7 +904,8 @@ class HonConfigSensorEntity(HonEntity, SensorEntity):
         else:
             value = 0
         if self.entity_description.option_list is not None and not value == 0:
-            self._attr_options = list(self.entity_description.option_list.values())
+            self._attr_options = list(
+                self.entity_description.option_list.values())
             value = get_readable(self.entity_description, value)
         self._attr_native_value = value
         if update:
