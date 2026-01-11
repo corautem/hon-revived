@@ -874,6 +874,9 @@
             "probe_1_battery": {
                 "name": "Probe 1 Battery"
             },
+            "probe_1_charge": {
+                "name": "Probe 1 Charge"
+            },
             "spin_speed": {
                 "name": "Spin"
             },

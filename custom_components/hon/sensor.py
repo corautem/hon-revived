@@ -344,6 +344,15 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             state_class=SensorStateClass.MEASUREMENT,
             translation_key="probe_1_battery",
         ),
+        HonSensorEntityDescription(
+            key="chargeEmployedProbe1",
+            name="Probe 1 Charge",
+            icon="mdi:battery-charging",
+            device_class=SensorDeviceClass.BATTERY,
+            native_unit_of_measurement=PERCENTAGE,
+            state_class=SensorStateClass.MEASUREMENT,
+            translation_key="probe_1_charge",
+        ),
     ),
     "IH": (
         HonSensorEntityDescription(
