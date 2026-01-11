@@ -312,6 +312,13 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             translation_key="target_temperature",
         ),
         HonSensorEntityDescription(
+            key="tempSelEmployedProbe1",
+            name="Probe 1 Temperature Selected",
+            icon="mdi:thermometer-probe",
+            native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            translation_key="probe_1_target_temperature",
+        ),
+        HonSensorEntityDescription(
             key="programName",
             name="Program",
             icon="mdi:play",

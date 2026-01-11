@@ -868,6 +868,9 @@
             "probe_1_temperature": {
                 "name": "Probe 1 Temperature"
             },
+            "probe_1_target_temperature": {
+                "name": "Target Temperature Probe 1"
+            },
             "probe_1_signal": {
                 "name": "Probe 1 Signal"
             },
