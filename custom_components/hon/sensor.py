@@ -322,6 +322,7 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             key="tempEmployedProbe1",
             name="Probe 1 Temperature",
             icon="mdi:thermometer-probe",
+            device_class=SensorDeviceClass.TEMPERATURE,
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             state_class=SensorStateClass.MEASUREMENT,
             translation_key="probe_1_temperature",
@@ -330,6 +331,8 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             key="signalEmployedProbe1",
             name="Probe 1 Signal",
             icon="mdi:signal",
+            device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+            native_unit_of_measurement=PERCENTAGE,
             translation_key="probe_1_signal",
         ),
         HonSensorEntityDescription(
