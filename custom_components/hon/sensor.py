@@ -1008,18 +1008,22 @@ class HonSensorEntity(HonEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
         value = self._device.get(self.entity_description.key, "")
+        options: list[str] | None = None
         if self.entity_description.key == "programName":
-            if not (options := self._device.settings.get("startProgram.program")):
-                raise ValueError
-            self._attr_options = options.values + ["No Program"]
+            if program := self._device.settings.get("startProgram.program"):
+                options = program.values + ["No Program"]
         elif self.entity_description.option_list is not None:
-            self._attr_options = list(self.entity_description.option_list.values())
+            options = list(self.entity_description.option_list.values())
             value = str(get_readable(self.entity_description, value))
-        if not value and self.entity_description.state_class is not None:
-            self._attr_native_value = 0
+        if value == "" or value in self.entity_description.unknown_values:
+            value = None
+        if options is not None:
+            # Keep values missing from the known options visible; Home Assistant
+            # rejects an enum state that is not one of its options
+            if value is not None and value not in options:
+                options.append(value)
+            self._attr_options = options
         self._attr_native_value = value
-        if value in self.entity_description.unknown_values:
-            self._attr_native_value = None
         if update:
             self.schedule_update_ha_state()
 
