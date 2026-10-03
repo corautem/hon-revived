@@ -20,6 +20,7 @@ It is an attempt to try to maintain an awesome integration created originally by
 > - When hOn stops accepting the saved password, Home Assistant asks for the new one. Upstream fails to load until the integration is removed and added again.
 > - Reloading the integration stops the previous MQTT connection. Upstream leaves one running per reload.
 > - A failed login no longer writes the hOn password to the log.
+> - Pressing "Show Device Info" on an oven with assisted cooking no longer crashes Home Assistant. pyhon tried to list all 10 billion values of the `assistedCookingSession` setting and ran out of memory.
 > - "Download diagnostics" replaces the "Create Data Archive" button, which saved appliance data under `/local/`, a path Home Assistant serves without a login.
 > - Sensors show codes missing from their value list instead of failing to update. Empty values and the -38 °C that some fridges report without a reading show as unknown.
 > - Fixes for the air purifier "On" sensor and for AC units without an on/off setting (AD50, AD71).
