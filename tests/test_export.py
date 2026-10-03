@@ -4,10 +4,12 @@ import io
 import json
 import re
 import zipfile
+from datetime import timedelta
 from http import HTTPStatus
 from typing import Any
 from unittest.mock import AsyncMock, patch
 
+from freezegun.api import FrozenDateTimeFactory
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
 from pytest_homeassistant_custom_component.common import MockConfigEntry
@@ -104,13 +106,14 @@ async def test_data_archive_layout() -> None:
     assert ACCOUNT_NUMBER not in archive.read("attributes.json").decode()
 
 
-async def test_data_archive_link_needs_login(
+async def test_data_archive_link_is_signed_and_expires(
     hass: HomeAssistant,
     config_entry: MockConfigEntry,
     fake_hon: FakeHon,
     appliances: list[FakeAppliance],
     entity_registry: er.EntityRegistry,
     hass_client_no_auth: ClientSessionGenerator,
+    freezer: FrozenDateTimeFactory,
 ) -> None:
     appliances.append(oven_with_data())
     entity_registry.async_get_or_create(
@@ -145,3 +148,7 @@ async def test_data_archive_link_needs_login(
 
     unsigned = await client.get(link.split("?")[0])
     assert unsigned.status == HTTPStatus.UNAUTHORIZED
+
+    freezer.tick(timedelta(minutes=11))
+    expired = await client.get(link)
+    assert expired.status == HTTPStatus.UNAUTHORIZED

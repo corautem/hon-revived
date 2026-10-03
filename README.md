@@ -21,7 +21,7 @@ It is an attempt to try to maintain an awesome integration created originally by
 > - Reloading the integration stops the previous MQTT connection. Upstream leaves one running per reload.
 > - A failed login no longer writes the hOn password to the log.
 > - Pressing "Show Device Info" on an oven with assisted cooking no longer crashes Home Assistant. pyhon tried to list all 10 billion values of the `assistedCookingSession` setting and ran out of memory.
-> - "Create Data Archive" offers its zip through a link that needs a Home Assistant login and expires after an hour. Upstream saves the zip under `/local/`, which Home Assistant serves without a login.
+> - "Create Data Archive" offers its zip through a signed link that appears only in Home Assistant and expires after 10 minutes. Upstream saves the zip under `/local/`, which Home Assistant serves to anyone, without a login and without expiry.
 > - "Show Device Info", the data archive and "Download diagnostics" mask the Haier customer number (`sfPersonAccountId`, which the camera repeats as its `userId`). Upstream leaves it in all three, and its "Show Device Info" also shows the account ID, the phone ID and the appliance's name.
 > - Sensors show codes missing from their value list instead of failing to update. Empty values and the -38 °C that some fridges report without a reading show as unknown.
 > - Fixes for the air purifier "On" sensor and for AC units without an on/off setting (AD50, AD71).

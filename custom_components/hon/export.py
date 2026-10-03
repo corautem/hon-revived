@@ -63,7 +63,8 @@ TOPICS = (
 )
 
 ARCHIVE_URL = "/api/hon/data_archive/{device_id}"
-ARCHIVE_LINK_LIFETIME = timedelta(hours=1)
+# A signed link works without a login until it expires, for anyone who has it
+ARCHIVE_LINK_LIFETIME = timedelta(minutes=10)
 
 
 def _mask(value: Any) -> Any:
@@ -180,16 +181,16 @@ async def async_data_archive(appliance: HonAppliance) -> bytes:
 
 
 def archive_link(hass: HomeAssistant, device_id: str) -> str:
-    """A link to a device's data archive that needs a login and expires."""
+    """A signed link to a device's data archive, valid for ARCHIVE_LINK_LIFETIME."""
     path = ARCHIVE_URL.format(device_id=device_id)
     return async_sign_path(hass, path, ARCHIVE_LINK_LIFETIME)
 
 
 class HonDataArchiveView(HomeAssistantView):
-    """Serve data archives to logged-in users.
+    """Serve data archives to logged-in users and to unexpired signed links.
 
     pyhon saves the archive in /config/www, which Home Assistant serves to anyone
-    at /local/ without a login.
+    at /local/, without a login and without expiry.
     """
 
     url = ARCHIVE_URL

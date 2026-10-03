@@ -126,7 +126,7 @@ class HonDataArchive(HonEntity, ButtonEntity):
         name = archive_name(self._device)
         text = (
             f'<a href="{link}" target="_blank">{name}</a> <br/><br/> '
-            "The link works for one hour.<br/>"
+            "The link works for 10 minutes, for anyone who has it.<br/>"
             "Use this data in [issues of this fork]"
             "(https://github.com/corautem/hon-revived/issues),<br/>"
             "or add it to the [hon-test-data collection]"
