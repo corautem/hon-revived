@@ -205,7 +205,7 @@ class HonACClimateEntity(HonEntity, ClimateEntity):
         self.schedule_update_ha_state()
 
     @property
-    def hvac_mode(self) -> HVACMode:
+    def hvac_mode(self) -> HVACMode | None:
         on_off = self._device.get("onOffStatus")
         mach = self._device.get("machMode")
 
@@ -429,7 +429,7 @@ class HonClimateEntity(HonEntity, ClimateEntity):
         self.schedule_update_ha_state()
 
     @property
-    def hvac_mode(self) -> HVACMode:
+    def hvac_mode(self) -> HVACMode | None:
         if self._device.get("onOffStatus") == 0:
             return HVACMode.OFF
         else:
