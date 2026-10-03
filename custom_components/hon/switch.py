@@ -430,12 +430,12 @@ async def async_setup_entry(
     entity: HonConfigSwitchEntity | HonControlSwitchEntity | HonSwitchEntity
 
     def is_control_command_valid(
-            device: HonAppliance,
-            description: HonControlSwitchEntityDescription) -> bool:
+        device: HonAppliance, description: HonControlSwitchEntityDescription
+    ) -> bool:
         return (
-                device.get(description.key) is not None
-                or description.turn_on_key in list(device.commands)
-                or description.turn_off_key in list(device.commands)
+            device.get(description.key) is not None
+            or description.turn_on_key in list(device.commands)
+            or description.turn_off_key in list(device.commands)
         )
 
     for device in hass.data[DOMAIN][entry.unique_id]["hon"].appliances:
@@ -526,7 +526,9 @@ class HonControlSwitchEntity(HonEntity, SwitchEntity):
         desc = self.entity_description
         self.do_sync_command(desc.turn_on_key, desc.key)
         self.coordinator.async_set_updated_data({})
-        await self._device.commands[desc.turn_on_key].send(desc.use_only_mandatory_params)
+        await self._device.commands[desc.turn_on_key].send(
+            desc.use_only_mandatory_params
+        )
         self._device.attributes[desc.key] = desc.on_value
         self.schedule_update_ha_state()
 
@@ -534,7 +536,9 @@ class HonControlSwitchEntity(HonEntity, SwitchEntity):
         desc = self.entity_description
         self.do_sync_command(desc.turn_off_key, desc.key)
         self.coordinator.async_set_updated_data({})
-        await self._device.commands[desc.turn_off_key].send(desc.use_only_mandatory_params)
+        await self._device.commands[desc.turn_off_key].send(
+            desc.use_only_mandatory_params
+        )
         self._device.attributes[desc.key] = desc.off_value
         self.schedule_update_ha_state()
 
@@ -564,7 +568,7 @@ class HonControlWhSwitchEntity(HonControlSwitchEntity):
     def do_sync_command(self, cmd_name: str, key: str) -> None:
         command = self._device.commands[cmd_name]
         for cmd_key, setting in command.settings.items():
-            if cmd_key == key or setting.group == 'parameter':
+            if cmd_key == key or setting.group == "parameter":
                 continue
 
             if (val := self._device.get(cmd_key, "")) is None or val == "":
