@@ -4,11 +4,22 @@ on:
   push:
   pull_request:
   schedule:
-    - cron:  '0 0 * * *'
+    - cron: "0 0 * * *"
+
+permissions:
+  contents: read
 
 jobs:
   validate:
     runs-on: "ubuntu-latest"
+    timeout-minutes: 10
     steps:
-        - uses: "actions/checkout@v3"
-        - uses: "home-assistant/actions/hassfest@master"
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      # home-assistant/actions publishes no release tags; this is master as of
+      # 2026-09-27
+      - name: Run hassfest
+        uses: home-assistant/actions/hassfest@06749dd8c0b54f350bc69c8752456cee498808a3 # master

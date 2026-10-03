@@ -2,51 +2,58 @@ name: Python check
 
 on:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
+
+permissions:
+  contents: read
 
 jobs:
-  build:
-
+  check:
+    name: Home Assistant ${{ matrix.home-assistant }}
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     strategy:
       fail-fast: false
       matrix:
         include:
-          - home-assistant: "2024.2.0"
-            python-version: "3.11"
-          - home-assistant: "2024.2.0"
-            python-version: "3.12"
-          - home-assistant: "2024.3.0"
-            python-version: "3.11"
-          - home-assistant: "2024.3.0"
-            python-version: "3.12"
+          # Oldest release in hacs.json and the current one. Each version of
+          # pytest-homeassistant-custom-component pins one Home Assistant release.
+          - home-assistant: "2026.7.4"
+            test-plugin: "0.13.348"
+          - home-assistant: "2026.9.4"
+            test-plugin: "0.13.367"
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v3
-      with:
-        python-version: ${{ matrix.python-version }}
-    - name: Install dependencies
-      run: |
-        python -m pip install homeassistant~=${{ matrix.home-assistant }}
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements.txt
-        python -m pip install -r requirements_dev.txt
-    - name: Lint with flake8
-      run: |
-        # stop the build if there are Python syntax errors or undefined names
-        flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-        flake8 . --count --exit-zero --max-complexity=10 --max-line-length=88 --statistics
-    - name: Type check with mypy
-      run: |
-        touch "$(python -c 'import inspect, homeassistant, os; print(os.path.dirname(inspect.getfile(homeassistant)))')"/py.typed
-        mypy -p custom_components.hon
-    # - name: Analysing the code with pylint
-    #   run: |
-    #     pylint --max-line-length 88 $(git ls-files '*.py')
-    - name: Check black style
-      run: |
-        black . --check
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+
+      - name: Install dependencies
+        env:
+          TEST_PLUGIN: ${{ matrix.test-plugin }}
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install "pytest-homeassistant-custom-component==$TEST_PLUGIN" \
+            -r requirements.txt -r requirements_dev.txt
+
+      - name: Check black style
+        run: black --check .
+
+      - name: Lint with flake8
+        run: |
+          # Syntax errors, undefined names and unused imports or variables
+          flake8 . --count --select=E9,F63,F7,F82,F401,F811,F841 --show-source --statistics
+
+      - name: Type check with mypy
+        run: mypy -p custom_components.hon
+
+      - name: Run tests
+        run: python -m pytest
