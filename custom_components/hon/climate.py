@@ -249,7 +249,9 @@ class HonACClimateEntity(HonEntity, ClimateEntity):
 
             await self._device.commands["settings"].send()
 
-            if "startProgram" in self._device.commands:
+            # Models without an onOffStatus setting (e.g. AD50, AD71) are only
+            # switched on by startProgram; the others are already on after settings
+            if not has_onoff and "startProgram" in self._device.commands:
                 self._device.sync_command("startProgram", "settings")
                 await self._device.commands["startProgram"].send()
 
