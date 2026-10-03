@@ -13,12 +13,14 @@ from homeassistant.helpers import (
     config_validation as cv,
     entity_registry as er,
 )
+from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from pyhon import Hon
 from pyhon.exceptions import HonAuthenticationError
 
 from . import pyhon_fixes
 from .const import DOMAIN, PLATFORMS, MOBILE_ID, CONF_REFRESH_TOKEN
+from .export import HonDataArchiveView
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -32,13 +34,17 @@ RENAMED_PROBE_KEYS = {
 }
 # Entities this fork no longer provides, as (platform, unique ID suffix)
 REMOVED_ENTITIES = (
-    # Replaced by the diagnostics download
-    ("button", "_create_data_archive"),
     # 0.19.2.3 only: stays 0 when the probe reaches its target
     ("binary_sensor", "tempStatusEmployedProbe1"),
 )
 
 pyhon_fixes.apply()
+
+
+async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
+    # Serves the zip of the "Create Data Archive" button
+    hass.http.register_view(HonDataArchiveView)
+    return True
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:

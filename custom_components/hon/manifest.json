@@ -5,6 +5,9 @@
     "@corautem"
   ],
   "config_flow": true,
+  "dependencies": [
+    "http"
+  ],
   "documentation": "https://github.com/corautem/hon-revived",
   "integration_type": "hub",
   "iot_class": "cloud_push",

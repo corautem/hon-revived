@@ -104,14 +104,15 @@ async def test_dropped_entities_are_removed(
     assert await hass.config_entries.async_setup(config_entry.entry_id)
     await hass.async_block_till_done()
 
-    for platform, unique_id in (
-        ("button", "ov_test_create_data_archive"),
-        ("binary_sensor", "ov_testtempStatusEmployedProbe1"),
-    ):
-        assert not entity_registry.async_get_entity_id(platform, DOMAIN, unique_id)
-    assert entity_registry.async_get_entity_id(
-        "binary_sensor", DOMAIN, "ov_testconnectionStatusEmployedProbe1"
+    assert not entity_registry.async_get_entity_id(
+        "binary_sensor", DOMAIN, "ov_testtempStatusEmployedProbe1"
     )
+    for platform, unique_id in (
+        # Removed in 0.19.2.4, provided again since 0.19.2.5
+        ("button", "ov_test_create_data_archive"),
+        ("binary_sensor", "ov_testconnectionStatusEmployedProbe1"),
+    ):
+        assert entity_registry.async_get_entity_id(platform, DOMAIN, unique_id)
 
 
 async def test_probe_in_holder(

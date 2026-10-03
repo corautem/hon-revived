@@ -36,6 +36,11 @@ class FakeAppliance:
         self.available_settings: list[str] = []
         self.data = data
         self.api = MagicMock()
+        # Read by the device info and data archive exports
+        self.info: dict[str, Any] = {}
+        self.attributes: dict[str, Any] = {}
+        self.statistics: dict[str, Any] = {}
+        self.additional_data: dict[str, Any] = {}
 
     def get(self, item: str, default: Any = None) -> Any:
         return self.data.get(item, default)
