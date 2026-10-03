@@ -2388,7 +2388,23 @@
                     "email": "Email",
                     "password": "Password"
                 }
+            },
+            "reauth_confirm": {
+                "title": "Sign in to hOn again",
+                "description": "hOn no longer accepts the saved password for {email}. Enter the current hOn password.",
+                "data": {
+                    "password": "Password"
+                }
             }
+        },
+        "error": {
+            "invalid_auth": "hOn rejected the email or password.",
+            "cannot_connect": "Could not reach the hOn cloud. Try again later.",
+            "unknown": "Unexpected error. Check the Home Assistant log."
+        },
+        "abort": {
+            "already_configured": "This hOn account is already set up.",
+            "reauth_successful": "Signed in again. The integration is reloading."
         }
     }
 }
