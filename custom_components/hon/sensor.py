@@ -11,7 +11,6 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
-    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
 )
 from homeassistant.const import (
     REVOLUTIONS_PER_MINUTE,
@@ -47,6 +46,9 @@ class HonSensorEntityDescription(SensorEntityDescription):
     option_list: dict[int, str] | None = None
     # Raw values the appliance reports when no reading is available
     unknown_values: tuple[float | str, ...] = ()
+    # Parameter and value the reading depends on, e.g. a probe being in use;
+    # ignored when the appliance doesn't report the parameter
+    unknown_unless: tuple[str, float | str] | None = None
 
 
 SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
@@ -361,22 +363,26 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             state_class=SensorStateClass.MEASUREMENT,
             device_class=SensorDeviceClass.TEMPERATURE,
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            # The oven reports 0 while the probe isn't in use
+            unknown_unless=("connectionStatusEmployedProbe1", 1),
             translation_key="probe_temperature",
         ),
+        # Signal and battery come from the paired probe ("Available"), which
+        # keeps reporting while the probe charges in its holder; the probe in
+        # use ("Employed") reads -128 and 0 there
         HonSensorEntityDescription(
-            key="signalEmployedProbe1",
+            # 52 to 73 on an H6 ID25L5YTX; the scale isn't documented
+            key="signalAvailableProbe1",
             name="Meat Probe Signal",
-            icon="mdi:wifi",
+            icon="mdi:signal",
             state_class=SensorStateClass.MEASUREMENT,
-            device_class=SensorDeviceClass.SIGNAL_STRENGTH,
-            native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
             entity_category=EntityCategory.DIAGNOSTIC,
             entity_registry_enabled_default=False,
             unknown_values=(-128,),
             translation_key="probe_signal",
         ),
         HonSensorEntityDescription(
-            key="chargeEmployedProbe1",
+            key="chargeAvailableProbe1",
             name="Meat Probe Battery",
             icon="mdi:battery",
             state_class=SensorStateClass.MEASUREMENT,
@@ -1018,6 +1024,10 @@ class HonSensorEntity(HonEntity, SensorEntity):
             value = str(get_readable(self.entity_description, value))
         if value == "" or value in self.entity_description.unknown_values:
             value = None
+        elif (condition := self.entity_description.unknown_unless) is not None:
+            status = self._device.get(condition[0])
+            if status is not None and status != condition[1]:
+                value = None
         if options is not None:
             # Keep values missing from the known options visible; Home Assistant
             # rejects an enum state that is not one of its options

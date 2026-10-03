@@ -198,6 +198,15 @@ BINARY_SENSORS: dict[str, tuple[HonBinarySensorEntityDescription, ...]] = {
             icon="mdi:thermometer-probe",
             translation_key="probe_connected",
         ),
+        HonBinarySensorEntityDescription(
+            # Read like the oven's tempStatus, which turns 1 at the set point
+            key="tempStatusEmployedProbe1",
+            name="Meat Probe Target Reached",
+            device_class=BinarySensorDeviceClass.HEAT,
+            on_value=1,
+            icon="mdi:thermometer-check",
+            translation_key="probe_temp_reached",
+        ),
     ),
     "IH": (
         HonBinarySensorEntityDescription(

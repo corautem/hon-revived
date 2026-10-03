@@ -26,19 +26,42 @@ async def push_update(hass: HomeAssistant, fake_hon: FakeHon) -> None:
     await hass.async_block_till_done()
 
 
+# Probe readings of an H6 ID25L5YTX, from its owner's "Show Device Info"
+PROBE_COOKING = {
+    "connectionStatusEmployedProbe1": 1,
+    "tempEmployedProbe1": 26,
+    "tempStatusEmployedProbe1": 0,
+    "chargeAvailableProbe1": 56,
+    "chargeEmployedProbe1": 56,
+    "signalAvailableProbe1": 73,
+    "signalEmployedProbe1": 73,
+}
+PROBE_IN_HOLDER = {
+    "connectionStatusEmployedProbe1": 0,
+    "tempEmployedProbe1": 0,
+    "tempStatusEmployedProbe1": 0,
+    "chargeAvailableProbe1": 56,
+    "chargeEmployedProbe1": 0,
+    "signalAvailableProbe1": 52,
+    "signalEmployedProbe1": -128,
+}
+
+
 @pytest.fixture
 def oven(appliances: list[FakeAppliance]) -> FakeAppliance:
-    oven = FakeAppliance(
-        "OV",
-        {
-            "tempEmployedProbe1": 55,
-            "connectionStatusEmployedProbe1": 1,
-            "signalEmployedProbe1": -60,
-            "chargeEmployedProbe1": 80,
-        },
-    )
+    oven = FakeAppliance("OV", dict(PROBE_COOKING))
     appliances.append(oven)
     return oven
+
+
+def enable_probe_signal(entity_registry: er.EntityRegistry) -> None:
+    """Register the signal sensor, which is disabled by default, as enabled."""
+    entity_registry.async_get_or_create(
+        "sensor",
+        DOMAIN,
+        "ov_testsignalAvailableProbe1",
+        suggested_object_id="ov_meat_probe_signal",
+    )
 
 
 async def test_probe_entities(
@@ -52,9 +75,9 @@ async def test_probe_entities(
 
     assert hass.states.get("binary_sensor.ov_meat_probe_connected").state == STATE_ON
     battery = hass.states.get("sensor.ov_meat_probe_battery")
-    assert battery.state == "80"
+    assert battery.state == "56"
     assert battery.attributes["unit_of_measurement"] == PERCENTAGE
-    assert hass.states.get("sensor.ov_meat_probe_temperature").state == "55"
+    assert hass.states.get("sensor.ov_meat_probe_temperature").state == "26"
 
     signal = entity_registry.async_get("sensor.ov_meat_probe_signal")
     assert signal is not None
@@ -62,36 +85,131 @@ async def test_probe_entities(
     assert signal.entity_category == "diagnostic"
 
 
-async def test_probe_without_reading_is_unknown(
+async def test_probe_target_reached(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    fake_hon: FakeHon,
+    oven: FakeAppliance,
+) -> None:
+    await setup_integration(hass, config_entry)
+    reached = hass.states.get("binary_sensor.ov_meat_probe_target_reached")
+    assert reached.state == STATE_OFF
+
+    oven.data["tempStatusEmployedProbe1"] = 1
+    await push_update(hass, fake_hon)
+    reached = hass.states.get("binary_sensor.ov_meat_probe_target_reached")
+    assert reached.state == STATE_ON
+
+
+async def test_probe_in_holder(
     hass: HomeAssistant,
     config_entry: MockConfigEntry,
     fake_hon: FakeHon,
     oven: FakeAppliance,
     entity_registry: er.EntityRegistry,
 ) -> None:
-    entity_registry.async_get_or_create(
-        "sensor",
-        DOMAIN,
-        "ov_testsignalEmployedProbe1",
-        suggested_object_id="ov_meat_probe_signal",
-    )
-    oven.data.update(
-        signalEmployedProbe1=-128,
-        chargeEmployedProbe1=0,
-        connectionStatusEmployedProbe1=0,
-    )
+    enable_probe_signal(entity_registry)
+    oven.data.update(PROBE_IN_HOLDER)
+    await setup_integration(hass, config_entry)
+
+    assert hass.states.get("sensor.ov_meat_probe_battery").state == "56"
+    signal = hass.states.get("sensor.ov_meat_probe_signal")
+    assert signal.state == "52"
+    assert "unit_of_measurement" not in signal.attributes
+    assert hass.states.get("sensor.ov_meat_probe_temperature").state == STATE_UNKNOWN
+    assert hass.states.get("binary_sensor.ov_meat_probe_connected").state == STATE_OFF
+
+    oven.data.update(PROBE_COOKING)
+    await push_update(hass, fake_hon)
+    assert hass.states.get("sensor.ov_meat_probe_signal").state == "73"
+    assert hass.states.get("sensor.ov_meat_probe_temperature").state == "26"
+    assert hass.states.get("binary_sensor.ov_meat_probe_connected").state == STATE_ON
+
+
+async def test_probe_not_paired_is_unknown(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    fake_hon: FakeHon,
+    oven: FakeAppliance,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    enable_probe_signal(entity_registry)
+    # What hon-test-data ov_15146 reports with no probe paired
+    oven.data.update(chargeAvailableProbe1=0, signalAvailableProbe1=-128)
     await setup_integration(hass, config_entry)
 
     assert hass.states.get("sensor.ov_meat_probe_signal").state == STATE_UNKNOWN
     assert hass.states.get("sensor.ov_meat_probe_battery").state == STATE_UNKNOWN
-    assert hass.states.get("binary_sensor.ov_meat_probe_connected").state == STATE_OFF
 
-    oven.data.update(signalEmployedProbe1=-70, connectionStatusEmployedProbe1=1)
-    await push_update(hass, fake_hon)
-    signal = hass.states.get("sensor.ov_meat_probe_signal")
-    assert signal.state == "-70"
-    assert signal.attributes["unit_of_measurement"] == "dBm"
-    assert hass.states.get("binary_sensor.ov_meat_probe_connected").state == STATE_ON
+
+async def test_probe_temperature_without_connection_status(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    fake_hon: FakeHon,
+    appliances: list[FakeAppliance],
+) -> None:
+    appliances.append(FakeAppliance("OV", {"tempEmployedProbe1": 0}))
+    await setup_integration(hass, config_entry)
+
+    assert hass.states.get("sensor.ov_meat_probe_temperature").state == "0"
+
+
+async def test_probe_sensors_keep_their_entity_ids(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    fake_hon: FakeHon,
+    oven: FakeAppliance,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    # 0.19.2.1 and 0.19.2.2 used the "Employed" keys for battery and signal
+    config_entry.add_to_hass(hass)
+    for key, object_id in (
+        ("chargeEmployedProbe1", "ov_meat_probe_battery"),
+        ("signalEmployedProbe1", "ov_meat_probe_signal"),
+    ):
+        entity_registry.async_get_or_create(
+            "sensor",
+            DOMAIN,
+            f"ov_test{key}",
+            suggested_object_id=object_id,
+            config_entry=config_entry,
+        )
+    assert await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    battery = entity_registry.async_get("sensor.ov_meat_probe_battery")
+    assert battery.unique_id == "ov_testchargeAvailableProbe1"
+    signal = entity_registry.async_get("sensor.ov_meat_probe_signal")
+    assert signal.unique_id == "ov_testsignalAvailableProbe1"
+    assert hass.states.get("sensor.ov_meat_probe_battery").state == "56"
+    assert hass.states.get("sensor.ov_meat_probe_signal").state == "73"
+    assert entity_registry.async_get("sensor.ov_meat_probe_battery_2") is None
+
+
+async def test_probe_migration_leaves_taken_ids(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    fake_hon: FakeHon,
+    oven: FakeAppliance,
+    entity_registry: er.EntityRegistry,
+) -> None:
+    # Both IDs exist after downgrading from 0.19.2.3 and upgrading again
+    config_entry.add_to_hass(hass)
+    for key in ("chargeEmployedProbe1", "chargeAvailableProbe1"):
+        entity_registry.async_get_or_create(
+            "sensor", DOMAIN, f"ov_test{key}", config_entry=config_entry
+        )
+    assert await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
+
+    assert entity_registry.async_get_entity_id(
+        "sensor", DOMAIN, "ov_testchargeEmployedProbe1"
+    )
+    battery = entity_registry.async_get_entity_id(
+        "sensor", DOMAIN, "ov_testchargeAvailableProbe1"
+    )
+    assert battery is not None
+    assert hass.states.get(battery).state == "56"
 
 
 async def test_unmapped_program_code_is_shown(

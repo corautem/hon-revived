@@ -6,9 +6,13 @@ from typing import Any
 from aiohttp import ClientError
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_EMAIL, CONF_PASSWORD, EVENT_HOMEASSISTANT_STOP
-from homeassistant.core import Event, HomeAssistant
+from homeassistant.core import Event, HomeAssistant, callback
 from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
-from homeassistant.helpers import config_validation as cv, aiohttp_client
+from homeassistant.helpers import (
+    aiohttp_client,
+    config_validation as cv,
+    entity_registry as er,
+)
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
 from pyhon import Hon
 from pyhon.exceptions import HonAuthenticationError
@@ -19,6 +23,13 @@ from .const import DOMAIN, PLATFORMS, MOBILE_ID, CONF_REFRESH_TOKEN
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+# 0.19.2.1 and 0.19.2.2 read the probe battery and signal from the probe in
+# use, which reports 0 and -128 while the probe sits in its holder
+RENAMED_PROBE_KEYS = {
+    "chargeEmployedProbe1": "chargeAvailableProbe1",
+    "signalEmployedProbe1": "signalAvailableProbe1",
+}
 
 pyhon_fixes.apply()
 
@@ -73,9 +84,28 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, async_stop)
     )
 
+    await async_migrate_probe_entities(hass, entry)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
+
+
+async def async_migrate_probe_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Move renamed probe sensors to their new unique ID, keeping the entity ID."""
+    registry = er.async_get(hass)
+
+    @callback
+    def migrate(entity: er.RegistryEntry) -> dict[str, Any] | None:
+        for old, new in RENAMED_PROBE_KEYS.items():
+            if not entity.unique_id.endswith(old):
+                continue
+            unique_id = entity.unique_id.removesuffix(old) + new
+            # Left alone if the new ID is taken, e.g. after a downgrade
+            if registry.async_get_entity_id(entity.domain, DOMAIN, unique_id) is None:
+                return {"new_unique_id": unique_id}
+        return None
+
+    await er.async_migrate_entries(hass, entry.entry_id, migrate)
 
 
 async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
