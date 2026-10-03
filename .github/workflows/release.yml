@@ -3,6 +3,12 @@ name: Release
 on:
   release:
     types: [published]
+  # Rebuild the asset of an existing release
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Release tag, e.g. v0.19.2.1"
+        required: true
 
 permissions: {}
 
@@ -16,16 +22,17 @@ jobs:
       # Sign the build provenance attestation for the zip
       id-token: write
       attestations: write
+    env:
+      TAG: ${{ github.event.release.tag_name || inputs.tag }}
 
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
+          ref: ${{ env.TAG }}
           persist-credentials: false
 
       - name: Check that the tag matches the manifest version
-        env:
-          TAG: ${{ github.event.release.tag_name }}
         run: |
           version=$(python3 -c 'import json; print(json.load(open("custom_components/hon/manifest.json"))["version"])')
           if [ "${TAG#v}" != "$version" ]; then
@@ -46,5 +53,4 @@ jobs:
       - name: Upload zip to release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: ${{ github.event.release.tag_name }}
         run: gh release upload "$TAG" haier_hon.zip --clobber --repo "$GITHUB_REPOSITORY"
