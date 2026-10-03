@@ -25,7 +25,13 @@ from homeassistant.core import HomeAssistant
 from pyhon.appliance import HonAppliance
 from pyhon.parameter.range import HonParameterRange
 
-from .const import HON_HVAC_MODE, HON_FAN, DOMAIN, HON_HVAC_PROGRAM
+from .const import (
+    HON_HVAC_MODE,
+    HON_FAN,
+    DOMAIN,
+    HON_HVAC_PROGRAM,
+    ZONE_TEMP_UNAVAILABLE,
+)
 from .entity import HonEntity
 
 _LOGGER = logging.getLogger(__name__)
@@ -410,7 +416,10 @@ class HonClimateEntity(HonEntity, ClimateEntity):
     def current_temperature(self) -> float | None:
         """Return the current temperature."""
         temp_key = self.entity_description.key.split(".")[-1].replace("Sel", "")
-        return self._device.get(temp_key, 0.0)
+        temperature = self._device.get(temp_key, 0.0)
+        if temperature == ZONE_TEMP_UNAVAILABLE:
+            return None
+        return temperature
 
     async def async_set_temperature(self, **kwargs: Any) -> None:
         if (temperature := kwargs.get(ATTR_TEMPERATURE)) is None:

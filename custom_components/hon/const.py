@@ -10,6 +10,9 @@ DOMAIN: str = "hon"
 MOBILE_ID: str = "homassistant"
 CONF_REFRESH_TOKEN = "refresh_token"
 
+# Zone temperature some fridges report when no reading is available
+ZONE_TEMP_UNAVAILABLE: int = -38
+
 PLATFORMS: list[str] = [
     "sensor",
     "select",

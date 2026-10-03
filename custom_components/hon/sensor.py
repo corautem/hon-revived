@@ -654,6 +654,7 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             state_class=SensorStateClass.MEASUREMENT,
             device_class=SensorDeviceClass.TEMPERATURE,
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            unknown_values=(const.ZONE_TEMP_UNAVAILABLE,),
             translation_key="fridge_temp",
         ),
         HonSensorEntityDescription(
@@ -663,6 +664,7 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             state_class=SensorStateClass.MEASUREMENT,
             device_class=SensorDeviceClass.TEMPERATURE,
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
+            unknown_values=(const.ZONE_TEMP_UNAVAILABLE,),
             translation_key="freezer_temp",
         ),
         HonSensorEntityDescription(
