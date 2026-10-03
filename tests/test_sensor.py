@@ -125,6 +125,26 @@ async def test_empty_value_is_unknown(
     assert hass.states.get("sensor.ov_meat_probe_temperature").state == STATE_UNKNOWN
 
 
+async def test_cycle_consumption_is_total_increasing(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    fake_hon: FakeHon,
+    appliances: list[FakeAppliance],
+) -> None:
+    data = {"currentElectricityUsed": 0.4, "currentWaterUsed": 12}
+    appliances.extend([FakeAppliance("WM", data), FakeAppliance("DW", data)])
+    await setup_integration(hass, config_entry)
+
+    consumption = [
+        state
+        for state in hass.states.async_all("sensor")
+        if state.attributes.get("device_class") in ("energy", "water", "volume")
+    ]
+    assert len(consumption) == 4
+    for state in consumption:
+        assert state.attributes["state_class"] == "total_increasing", state.entity_id
+
+
 async def test_fridge_zone_without_reading_is_unknown(
     hass: HomeAssistant,
     config_entry: MockConfigEntry,
