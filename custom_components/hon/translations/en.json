@@ -2145,9 +2145,6 @@
             "probe_connected": {
                 "name": "Meat Probe Connected"
             },
-            "probe_temp_reached": {
-                "name": "Meat Probe Target Reached"
-            },
             "add_dish": {
                 "name": "Add Dish"
             },

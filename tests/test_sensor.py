@@ -85,20 +85,33 @@ async def test_probe_entities(
     assert signal.entity_category == "diagnostic"
 
 
-async def test_probe_target_reached(
+async def test_dropped_entities_are_removed(
     hass: HomeAssistant,
     config_entry: MockConfigEntry,
     fake_hon: FakeHon,
     oven: FakeAppliance,
+    entity_registry: er.EntityRegistry,
 ) -> None:
-    await setup_integration(hass, config_entry)
-    reached = hass.states.get("binary_sensor.ov_meat_probe_target_reached")
-    assert reached.state == STATE_OFF
+    config_entry.add_to_hass(hass)
+    for platform, unique_id in (
+        ("button", "ov_test_create_data_archive"),
+        ("binary_sensor", "ov_testtempStatusEmployedProbe1"),
+        ("binary_sensor", "ov_testconnectionStatusEmployedProbe1"),
+    ):
+        entity_registry.async_get_or_create(
+            platform, DOMAIN, unique_id, config_entry=config_entry
+        )
+    assert await hass.config_entries.async_setup(config_entry.entry_id)
+    await hass.async_block_till_done()
 
-    oven.data["tempStatusEmployedProbe1"] = 1
-    await push_update(hass, fake_hon)
-    reached = hass.states.get("binary_sensor.ov_meat_probe_target_reached")
-    assert reached.state == STATE_ON
+    for platform, unique_id in (
+        ("button", "ov_test_create_data_archive"),
+        ("binary_sensor", "ov_testtempStatusEmployedProbe1"),
+    ):
+        assert not entity_registry.async_get_entity_id(platform, DOMAIN, unique_id)
+    assert entity_registry.async_get_entity_id(
+        "binary_sensor", DOMAIN, "ov_testconnectionStatusEmployedProbe1"
+    )
 
 
 async def test_probe_in_holder(

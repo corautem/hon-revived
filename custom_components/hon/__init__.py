@@ -30,6 +30,13 @@ RENAMED_PROBE_KEYS = {
     "chargeEmployedProbe1": "chargeAvailableProbe1",
     "signalEmployedProbe1": "signalAvailableProbe1",
 }
+# Entities this fork no longer provides, as (platform, unique ID suffix)
+REMOVED_ENTITIES = (
+    # Replaced by the diagnostics download
+    ("button", "_create_data_archive"),
+    # 0.19.2.3 only: stays 0 when the probe reaches its target
+    ("binary_sensor", "tempStatusEmployedProbe1"),
+)
 
 pyhon_fixes.apply()
 
@@ -84,15 +91,21 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.bus.async_listen_once(EVENT_HOMEASSISTANT_STOP, async_stop)
     )
 
-    await async_migrate_probe_entities(hass, entry)
+    await async_migrate_entities(hass, entry)
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
 
 
-async def async_migrate_probe_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
-    """Move renamed probe sensors to their new unique ID, keeping the entity ID."""
+async def async_migrate_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:
+    """Remove dropped entities and give renamed ones their new unique ID."""
     registry = er.async_get(hass)
+    for entity in er.async_entries_for_config_entry(registry, entry.entry_id):
+        if any(
+            entity.domain == platform and entity.unique_id.endswith(suffix)
+            for platform, suffix in REMOVED_ENTITIES
+        ):
+            registry.async_remove(entity.entity_id)
 
     @callback
     def migrate(entity: er.RegistryEntry) -> dict[str, Any] | None:
