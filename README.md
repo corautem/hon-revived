@@ -23,6 +23,7 @@ It is an attempt to try to maintain an awesome integration created originally by
 > - "Download diagnostics" replaces the "Create Data Archive" button, which saved appliance data under `/local/`, a path Home Assistant serves without a login.
 > - Sensors show codes missing from their value list instead of failing to update. Empty values and the -38 °C that some fridges report without a reading show as unknown.
 > - Fixes for the air purifier "On" sensor and for AC units without an on/off setting (AD50, AD71).
+> - Dishwasher and air purifier lights load again ([#52](https://github.com/mmalolepszy/hon-revived/issues/52)), and the per-cycle energy and water sensors of washers and dishwashers no longer log "impossible state class" warnings ([#71](https://github.com/mmalolepszy/hon-revived/issues/71)).
 > - Water heater support ([#47](https://github.com/mmalolepszy/hon-revived/pull/47)) and the washing machine program code sensor ([#54](https://github.com/mmalolepszy/hon-revived/pull/54)) from open upstream pull requests.
 > - Requires Home Assistant 2026.7 or newer.
 >
