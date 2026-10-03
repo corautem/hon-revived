@@ -1,9 +1,9 @@
 # Haier hOn Revived
 
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
-[![GitHub release (latest by date)](https://img.shields.io/github/v/release/mmalolepszy/hon-revived?color=green)](https://github.com/mmalolepszy/hon-revived/releases/latest)
-[![GitHub latest release](https://img.shields.io/github/downloads/mmalolepszy/hon-revived/latest/total?color=blue&label=downloads)](https://tooomm.github.io/github-release-stats/?username=mmalolepszy&repository=hon-revived)
-[![GitHub all releases](https://img.shields.io/github/downloads/mmalolepszy/hon-revived/total?color=blue&label=total%20downloads)](https://tooomm.github.io/github-release-stats/?username=mmalolepszy&repository=hon-revived)
+[![GitHub release (latest by date)](https://img.shields.io/github/v/release/corautem/hon-revived?color=green)](https://github.com/corautem/hon-revived/releases/latest)
+[![GitHub latest release](https://img.shields.io/github/downloads/corautem/hon-revived/latest/total?color=blue&label=downloads)](https://tooomm.github.io/github-release-stats/?username=corautem&repository=hon-revived)
+[![GitHub all releases](https://img.shields.io/github/downloads/corautem/hon-revived/total?color=blue&label=total%20downloads)](https://tooomm.github.io/github-release-stats/?username=corautem&repository=hon-revived)
 [![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-donate-orange.svg)](https://www.buymeacoffee.com/mmalolepszy)
 
 ---
@@ -12,16 +12,32 @@ Home Assistant integration for [Haier's mobile app hOn](https://hon-smarthome.co
 
 It is an attempt to try to maintain an awesome integration created originally by [Andre0512](https://github.com/Andre0512).
 
+> [!NOTE]
+> This is [corautem](https://github.com/corautem)'s fork of [mmalolepszy/hon-revived](https://github.com/mmalolepszy/hon-revived). It is synced with upstream and carries changes that upstream has not merged yet. It uses the same `hon` domain and the same entity unique IDs, so you can switch between this fork and upstream in HACS and keep your entities, history and automations.
+>
+> Changes compared with upstream v0.19.2:
+> - Oven meat probe signal (dBm), battery and connection entities.
+> - When hOn stops accepting the saved password, Home Assistant asks for the new one. Upstream fails to load until the integration is removed and added again.
+> - Reloading the integration stops the previous MQTT connection. Upstream leaves one running per reload.
+> - A failed login no longer writes the hOn password to the log.
+> - "Download diagnostics" replaces the "Create Data Archive" button, which saved appliance data under `/local/`, a path Home Assistant serves without a login.
+> - Sensors show codes missing from their value list instead of failing to update. Empty values and the -38 °C that some fridges report without a reading show as unknown.
+> - Fixes for the air purifier "On" sensor and for AC units without an on/off setting (AD50, AD71).
+> - Water heater support ([#47](https://github.com/mmalolepszy/hon-revived/pull/47)) and the washing machine program code sensor ([#54](https://github.com/mmalolepszy/hon-revived/pull/54)) from open upstream pull requests.
+> - Requires Home Assistant 2026.7 or newer.
+>
+> Report problems with this fork in [its issue tracker](https://github.com/corautem/hon-revived/issues).
+
 ---
 
 ## Installation
 **Method 1:** 
-1. Add https://github.com/mmalolepszy/hon-revived with the category "integration" as a custom repository in HACS
+1. Add https://github.com/corautem/hon-revived with the category "integration" as a custom repository in HACS
 2. Install it in HACS
 3. Restart Home Assistant
 
 **Method 2:**
-1. Manually copy `hon` folder from [latest release](https://github.com/mmalolepszy/hon-revived/releases/latest) to `config/custom_components` folder.
+1. Manually copy `hon` folder from [latest release](https://github.com/corautem/hon-revived/releases/latest) to `config/custom_components` folder.
 2. Restart Home Assistant
 
 ## Configuration

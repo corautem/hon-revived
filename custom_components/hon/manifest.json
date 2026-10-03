@@ -2,19 +2,18 @@
   "domain": "hon",
   "name": "Haier hOn Revived",
   "codeowners": [
-    "@mmalolepszy",
-    "@Andre0512"
+    "@corautem"
   ],
   "config_flow": true,
-  "documentation": "https://github.com/mmalolepszy/hon-revived/",
+  "documentation": "https://github.com/corautem/hon-revived",
   "integration_type": "hub",
   "iot_class": "cloud_push",
-  "issue_tracker": "https://github.com/mmalolepszy/hon-revived/issues",
+  "issue_tracker": "https://github.com/corautem/hon-revived/issues",
   "loggers": [
     "pyhon"
   ],
   "requirements": [
     "pyhon-revived==0.19.2"
   ],
-  "version": "0.19.2"
+  "version": "0.19.2.1"
 }
