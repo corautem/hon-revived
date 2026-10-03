@@ -1,5 +1,4 @@
 import logging
-from pathlib import Path
 
 from homeassistant.components import persistent_notification
 from homeassistant.components.button import ButtonEntityDescription, ButtonEntity
@@ -66,7 +65,6 @@ async def async_setup_entry(
             entity = HonButtonEntity(hass, entry, device, description)
             entities.append(entity)
         entities.append(HonDeviceInfo(hass, entry, device))
-        entities.append(HonDataArchive(hass, entry, device))
     async_add_entities(entities)
 
 
@@ -103,30 +101,3 @@ class HonDeviceInfo(HonEntity, ButtonEntity):
         persistent_notification.create(
             self._hass, f"````\n```\n{self._device.diagnose}\n```\n````", title
         )
-        _LOGGER.info(self._device.diagnose.replace(" ", "\u200B "))
-
-
-class HonDataArchive(HonEntity, ButtonEntity):
-    def __init__(
-        self, hass: HomeAssistant, entry: ConfigEntry, device: HonAppliance
-    ) -> None:
-        super().__init__(hass, entry, device)
-
-        self._attr_unique_id = f"{super().unique_id}_create_data_archive"
-        self._attr_icon = "mdi:archive-arrow-down"
-        self._attr_name = "Create Data Archive"
-        self._attr_entity_category = EntityCategory.DIAGNOSTIC
-        self._attr_entity_registry_enabled_default = False
-
-    async def async_press(self) -> None:
-        if (config_dir := self._hass.config.config_dir) is None:
-            raise ValueError("Missing Config Dir")
-        path = Path(config_dir) / "www"
-        data = await self._device.data_archive(path)
-        title = f"{self._device.nick_name} Data Archive"
-        text = (
-            f'<a href="/local/{data}" target="_blank">{data}</a> <br/><br/> '
-            f"Use this data for [GitHub Issues of Haier hOn](https://github.com/mmalolepszy/hon-revived).<br/>"
-            f"Or add it to the [hon-test-data collection](https://github.com/mmalolepszy/hon-test-data)."
-        )
-        persistent_notification.create(self._hass, text, title)

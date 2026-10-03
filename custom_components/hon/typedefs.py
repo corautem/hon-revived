@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from homeassistant.components.switch import SwitchEntityDescription
 
     from .binary_sensor import HonBinarySensorEntityDescription
-    from .button import HonButtonEntity, HonDataArchive, HonDeviceInfo
+    from .button import HonButtonEntity, HonDeviceInfo
     from .climate import (
         HonACClimateEntityDescription,
         HonClimateEntityDescription,
@@ -37,7 +37,6 @@ if TYPE_CHECKING:
 
 HonButtonType = Union[
     "HonButtonEntity",
-    "HonDataArchive",
     "HonDeviceInfo",
 ]
 
