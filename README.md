@@ -16,7 +16,7 @@ It is an attempt to try to maintain an awesome integration created originally by
 > This is [corautem](https://github.com/corautem)'s fork of [mmalolepszy/hon-revived](https://github.com/mmalolepszy/hon-revived). It is synced with upstream and carries changes that upstream has not merged yet. It uses the same `hon` domain and the same entity unique IDs, so you can switch between this fork and upstream in HACS and keep your entities, history and automations.
 >
 > Changes compared with upstream v0.19.2:
-> - Oven meat probe battery, signal, connection and "target reached" entities. Battery and signal keep their values while the probe charges in its holder, and the probe temperature shows unknown there instead of 0 °C.
+> - Oven meat probe battery, signal and connection entities. Battery and signal keep their values while the probe charges in its holder, and the probe temperature shows unknown there instead of 0 °C.
 > - When hOn stops accepting the saved password, Home Assistant asks for the new one. Upstream fails to load until the integration is removed and added again.
 > - Reloading the integration stops the previous MQTT connection. Upstream leaves one running per reload.
 > - A failed login no longer writes the hOn password to the log.
