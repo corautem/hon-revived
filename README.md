@@ -21,7 +21,8 @@ It is an attempt to try to maintain an awesome integration created originally by
 > - Reloading the integration stops the previous MQTT connection. Upstream leaves one running per reload.
 > - A failed login no longer writes the hOn password to the log.
 > - Pressing "Show Device Info" on an oven with assisted cooking no longer crashes Home Assistant. pyhon tried to list all 10 billion values of the `assistedCookingSession` setting and ran out of memory.
-> - "Download diagnostics" replaces the "Create Data Archive" button, which saved appliance data under `/local/`, a path Home Assistant serves without a login.
+> - "Create Data Archive" offers its zip through a link that needs a Home Assistant login and expires after an hour. Upstream saves the zip under `/local/`, which Home Assistant serves without a login.
+> - "Show Device Info", the data archive and "Download diagnostics" mask the Haier customer number (`sfPersonAccountId`, which the camera repeats as its `userId`). Upstream leaves it in all three, and its "Show Device Info" also shows the account ID, the phone ID and the appliance's name.
 > - Sensors show codes missing from their value list instead of failing to update. Empty values and the -38 °C that some fridges report without a reading show as unknown.
 > - Fixes for the air purifier "On" sensor and for AC units without an on/off setting (AD50, AD71).
 > - Dishwasher and air purifier lights load again ([#52](https://github.com/mmalolepszy/hon-revived/issues/52)), and the per-cycle energy and water sensors of washers and dishwashers no longer log "impossible state class" warnings ([#71](https://github.com/mmalolepszy/hon-revived/issues/71)).
