@@ -975,7 +975,13 @@
                 "name": "Humidity level"
             },
             "probe_temperature": {
-                "name": "Meat Probe Temperature" 
+                "name": "Meat Probe Temperature"
+            },
+            "probe_signal": {
+                "name": "Meat Probe Signal"
+            },
+            "probe_battery": {
+                "name": "Meat Probe Battery"
             },
             "steam_tank_level": {
                 "name": "Steam Tank Level" 
@@ -2107,6 +2113,9 @@
             },
             "descaling_required": {
                 "name": "Descaling Required"
+            },
+            "probe_connected": {
+                "name": "Meat Probe Connected"
             },
             "add_dish": {
                 "name": "Add Dish"

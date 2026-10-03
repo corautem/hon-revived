@@ -191,6 +191,14 @@ BINARY_SENSORS: dict[str, tuple[HonBinarySensorEntityDescription, ...]] = {
             icon="mdi:alert-circle",
             translation_key="descaling_required",
         ),
+        HonBinarySensorEntityDescription(
+            key="connectionStatusEmployedProbe1",
+            name="Meat Probe Connected",
+            device_class=BinarySensorDeviceClass.CONNECTIVITY,
+            on_value=1,
+            icon="mdi:thermometer-probe",
+            translation_key="probe_connected",
+        ),
     ),
     "IH": (
         HonBinarySensorEntityDescription(

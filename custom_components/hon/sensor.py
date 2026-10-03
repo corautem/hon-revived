@@ -10,6 +10,7 @@ from homeassistant.components.sensor import (
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import (
     PERCENTAGE,
+    SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
 )
 from homeassistant.const import (
     REVOLUTIONS_PER_MINUTE,
@@ -43,6 +44,8 @@ class HonConfigSensorEntityDescription(SensorEntityDescription):
 @dataclass(frozen=True)
 class HonSensorEntityDescription(SensorEntityDescription):
     option_list: dict[int, str] | None = None
+    # Raw values the appliance reports when no reading is available
+    unknown_values: tuple[float | str, ...] = ()
 
 
 SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
@@ -350,6 +353,29 @@ SENSORS: dict[str, tuple[SensorEntityDescription, ...]] = {
             device_class=SensorDeviceClass.TEMPERATURE,
             native_unit_of_measurement=UnitOfTemperature.CELSIUS,
             translation_key="probe_temperature",
+        ),
+        HonSensorEntityDescription(
+            key="signalEmployedProbe1",
+            name="Meat Probe Signal",
+            icon="mdi:wifi",
+            state_class=SensorStateClass.MEASUREMENT,
+            device_class=SensorDeviceClass.SIGNAL_STRENGTH,
+            native_unit_of_measurement=SIGNAL_STRENGTH_DECIBELS_MILLIWATT,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            entity_registry_enabled_default=False,
+            unknown_values=(-128,),
+            translation_key="probe_signal",
+        ),
+        HonSensorEntityDescription(
+            key="chargeEmployedProbe1",
+            name="Meat Probe Battery",
+            icon="mdi:battery",
+            state_class=SensorStateClass.MEASUREMENT,
+            device_class=SensorDeviceClass.BATTERY,
+            native_unit_of_measurement=PERCENTAGE,
+            entity_category=EntityCategory.DIAGNOSTIC,
+            unknown_values=(0,),
+            translation_key="probe_battery",
         ),
         HonSensorEntityDescription(
             key="steamTankLevel",
@@ -925,6 +951,8 @@ class HonSensorEntity(HonEntity, SensorEntity):
         if not value and self.entity_description.state_class is not None:
             self._attr_native_value = 0
         self._attr_native_value = value
+        if value in self.entity_description.unknown_values:
+            self._attr_native_value = None
         if update:
             self.schedule_update_ha_state()
 
