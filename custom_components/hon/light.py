@@ -82,11 +82,12 @@ class HonLightEntity(HonEntity, LightEntity):
         if not isinstance(light, HonParameterRange):
             raise ValueError()
         self._light_range = (light.min, light.max)
-        self._attr_supported_color_modes: set[ColorMode] = set()
+        # Home Assistant refuses to add a light that does not report its color mode
         if len(light.values) == 2:
-            self._attr_supported_color_modes.add(ColorMode.ONOFF)
+            self._attr_color_mode = ColorMode.ONOFF
         else:
-            self._attr_supported_color_modes.add(ColorMode.BRIGHTNESS)
+            self._attr_color_mode = ColorMode.BRIGHTNESS
+        self._attr_supported_color_modes = {self._attr_color_mode}
         self._command, self._parameter = description.key.split(".")
         super().__init__(hass, entry, device, description)
         self._handle_coordinator_update(update=False)
@@ -101,7 +102,7 @@ class HonLightEntity(HonEntity, LightEntity):
         light = self._device.settings.get(self.entity_description.key)
         if not isinstance(light, HonParameterRange):
             raise ValueError()
-        if ColorMode.BRIGHTNESS in self._attr_supported_color_modes:
+        if self._attr_color_mode == ColorMode.BRIGHTNESS:
             percent = int(100 / 255 * kwargs.get(ATTR_BRIGHTNESS, 128))
             light.value = round(light.max / 100 * percent)
             if light.value == light.min:
