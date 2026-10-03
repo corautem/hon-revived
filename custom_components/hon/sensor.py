@@ -1,5 +1,6 @@
 import logging
 from dataclasses import dataclass
+from typing import Any
 
 from homeassistant.components.sensor import (
     SensorEntity,
@@ -1007,7 +1008,7 @@ class HonSensorEntity(HonEntity, SensorEntity):
 
     @callback
     def _handle_coordinator_update(self, update: bool = True) -> None:
-        value = self._device.get(self.entity_description.key, "")
+        value: Any = self._device.get(self.entity_description.key, "")
         options: list[str] | None = None
         if self.entity_description.key == "programName":
             if program := self._device.settings.get("startProgram.program"):
