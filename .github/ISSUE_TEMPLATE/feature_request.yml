@@ -1,0 +1,31 @@
+name: Feature idea
+description: Support for another appliance, or something the integration could do that it does not do yet.
+labels: [enhancement]
+assignees: [corautem]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for the idea. This fork is maintained in limited spare time, so it works on fixes first. An idea that comes with a pull request, or with the appliance's data, is the one most likely to be added.
+
+        This page is public: leave out anything private, such as your e-mail address, names, serial numbers or MAC addresses.
+  - type: textarea
+    id: idea
+    attributes:
+      label: What the integration should do
+      placeholder: Show the washing machine's remaining detergent as a sensor.
+    validations:
+      required: true
+  - type: input
+    id: appliance
+    attributes:
+      label: Appliance and model
+      description: The appliance type and the model name shown in the hOn app.
+      placeholder: Washing machine, model name from the hOn app
+    validations:
+      required: true
+  - type: textarea
+    id: data
+    attributes:
+      label: The appliance's data
+      description: Optional. Press the appliance's Create Data Archive button in Home Assistant and attach the zip, or link to the appliance's folder in hon-test-data (https://github.com/mmalolepszy/hon-test-data). Check the files for private details before you attach them.

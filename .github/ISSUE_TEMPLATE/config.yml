@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Questions about Home Assistant
+    url: https://community.home-assistant.io/
+    about: For help with Home Assistant itself, ask in the Home Assistant Community forum.

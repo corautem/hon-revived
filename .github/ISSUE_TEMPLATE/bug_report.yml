@@ -1,0 +1,75 @@
+name: Bug report
+description: The integration does not load, an appliance or entity is missing, or something does not work as described.
+labels: [bug]
+assignees: [corautem]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting a problem. This fork is maintained in limited spare time, so a report with the details below is the one that gets fixed first.
+
+        This page is public: leave out anything private, such as your e-mail address, names, serial numbers or MAC addresses. You can rename appliances and entities in what you paste here.
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happens
+      description: What you see, and what you expected instead. Paste error messages exactly as shown.
+      placeholder: After the update the tumble dryer has no entities, and the log shows a ValueError.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: How to make it happen
+      description: The steps, starting from Home Assistant's start-up or from the action that fails.
+      placeholder: |
+        1. Restart Home Assistant.
+        2. Open Settings > Devices & services > Haier hOn Revived.
+        3. ...
+    validations:
+      required: true
+  - type: input
+    id: appliance
+    attributes:
+      label: Appliance and model
+      description: The appliance type and the model name shown in the hOn app.
+      placeholder: Tumble dryer, model name from the hOn app
+    validations:
+      required: true
+  - type: input
+    id: version
+    attributes:
+      label: hOn integration version
+      description: Settings > Marketplace > Haier hOn Revived shows the installed version.
+      placeholder: "0.19.5.1"
+    validations:
+      required: true
+  - type: dropdown
+    id: install
+    attributes:
+      label: Installed through
+      options:
+        - Marketplace
+        - HACS (Home Assistant before 2026.11)
+        - By hand
+    validations:
+      required: true
+  - type: input
+    id: home-assistant
+    attributes:
+      label: Home Assistant version
+      description: Settings > About.
+      placeholder: "2026.11.2"
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Log lines
+      description: Optional. Lines that mention hon or pyhon, from Settings > System > Logs (select Show raw logs).
+      render: text
+  - type: textarea
+    id: diagnostics
+    attributes:
+      label: Diagnostics
+      description: Optional. On the appliance's device page, open the three dots menu, select Download diagnostics, and drag the file here. The integration masks the Haier customer number and other account details in it, but check the file before you attach it.

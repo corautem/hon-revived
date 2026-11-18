@@ -35,6 +35,15 @@ It is an attempt to try to maintain an awesome integration created originally by
 
 ---
 
+## Maintenance
+
+This fork is maintained in limited spare time. It takes on:
+- new upstream releases, merged and tested on the newest Home Assistant;
+- crashes that stop the integration from loading, and changes that new Home Assistant releases require;
+- privacy and security fixes.
+
+A test against the newest Home Assistant release runs every week, so Home Assistant's changes show up before they break the integration. New appliances and features are added when they come as a pull request with tests or with the appliance's data (see [Contribute](#contribute)). Bug reports made with the [bug report form](https://github.com/corautem/hon-revived/issues/new/choose) have the details needed to fix them, and are fixed first.
+
 ## Installation
 **Method 1: Marketplace**, built into Home Assistant from 2026.11
 1. Go to **Settings** > **Marketplace** and select **Add from link** in the upper-right corner.
@@ -849,8 +858,12 @@ The apps on this (incomplete) list have been requested so far:
 | Haier Evo       | Russia        | :x:                                     |                                                                                 |
 
 ## Contribute
-Want to help us to support more appliances? Or add more sensors? Or help with translating? Or beautify some icons or captions? 
-Check out the [project on GitHub](https://github.com/mmalolepszy/hon-revived), every contribution is welcome!
+Pull requests to this fork are welcome. A pull request is quickest to review when it:
+- fixes or adds one thing, and names the appliance and model it was tested with;
+- adds a test in `tests/`, or the appliance's data from [hon-test-data](https://github.com/mmalolepszy/hon-test-data);
+- passes the checks that CI runs: `black --check .`, `flake8`, `mypy -p custom_components.hon` and `pytest`.
+
+Changes that help every user can also go to [upstream hon-revived](https://github.com/mmalolepszy/hon-revived).
 
 | Please add your appliances data to our [hon-test-data collection](https://github.com/mmalolepszy/hon-test-data). <br/>This helps us to develop new features and not to break compatibility in newer versions. |
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
