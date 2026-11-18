@@ -36,7 +36,7 @@ try:  # HA >= 2026.7
     MICROGRAMS_PER_CUBIC_METER = UnitOfDensity.MICROGRAMS_PER_CUBIC_METER
     PARTS_PER_MILLION = UnitOfRatio.PARTS_PER_MILLION
 except ImportError:  # HA < 2026.7
-    from homeassistant.const import (
+    from homeassistant.const import (  # type: ignore[no-redef]
         CONCENTRATION_MICROGRAMS_PER_CUBIC_METER as MICROGRAMS_PER_CUBIC_METER,
         CONCENTRATION_PARTS_PER_MILLION as PARTS_PER_MILLION,
     )

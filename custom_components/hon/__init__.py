@@ -184,7 +184,7 @@ async def async_close_hon(hon: Hon) -> None:
     """Stop the MQTT connection and close the hOn API handlers."""
     hon.subscribe_updates(lambda _: None)
     # Hon.close() leaves the MQTT client and its reconnect watchdog running
-    # (pyhon-revived 0.19.2), so each reload used to add another connection
+    # (pyhon-revived 0.19.2 to 0.19.4), so each reload used to add another connection
     if (mqtt := getattr(hon, "_mqtt_client", None)) is not None:
         if (watchdog := getattr(mqtt, "_watchdog_task", None)) is not None:
             watchdog.cancel()

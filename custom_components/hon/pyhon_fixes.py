@@ -1,4 +1,4 @@
-"""Workarounds for bugs in the pinned pyhon-revived release (0.19.2).
+"""Workarounds for bugs in the pinned pyhon-revived release (0.19.4).
 
 Re-check each one when bumping pyhon-revived.
 """
@@ -48,7 +48,7 @@ def _parse_conditions(
     #    probe send tempSel -> {"probe": {"0": {"maximumValue": "250"}}}. pyhon
     #    treated {"maximumValue": "250"} as another condition and called
     #    .items() on "250", which stopped the whole setup (issue #1). Such
-    #    values are skipped, as on pyhon-revived main since its PR #13.
+    #    values are skipped, as pyhon-revived does since 0.19.3.
     # 2. pyhon shared one `extra` dict between all values of a trigger, so a
     #    rule could carry the conditions of a sibling value. On ovens with a
     #    probe, "probe connected = 1, so set probe = 1" carried "probe

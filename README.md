@@ -4,7 +4,7 @@
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/corautem/hon-revived?color=green)](https://github.com/corautem/hon-revived/releases/latest)
 [![GitHub latest release](https://img.shields.io/github/downloads/corautem/hon-revived/latest/total?color=blue&label=downloads)](https://tooomm.github.io/github-release-stats/?username=corautem&repository=hon-revived)
 [![GitHub all releases](https://img.shields.io/github/downloads/corautem/hon-revived/total?color=blue&label=total%20downloads)](https://tooomm.github.io/github-release-stats/?username=corautem&repository=hon-revived)
-[![Buy Me a Coffee](https://img.shields.io/badge/Buy%20Me%20a%20Coffee-donate-orange.svg)](https://www.buymeacoffee.com/mmalolepszy)
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/corautem) [![Sponsor me on GitHub](assets/github-sponsors.svg)](https://github.com/sponsors/corautem)
 
 ---
 
@@ -15,19 +15,18 @@ It is an attempt to try to maintain an awesome integration created originally by
 > [!NOTE]
 > This is [corautem](https://github.com/corautem)'s fork of [mmalolepszy/hon-revived](https://github.com/mmalolepszy/hon-revived). It is synced with upstream and carries changes that upstream has not merged yet. It uses the same `hon` domain and the same entity unique IDs, so you can switch between this fork and upstream in the Marketplace (HACS before Home Assistant 2026.11) and keep your entities, history and automations.
 >
-> Changes compared with upstream v0.19.2:
+> Changes compared with upstream v0.19.5:
 > - Oven meat probe battery, signal and connection entities. Battery and signal keep their values while the probe charges in its holder, and the probe temperature shows unknown there instead of 0 °C.
 > - When hOn stops accepting the saved password, Home Assistant asks for the new one. Upstream fails to load until the integration is removed and added again.
 > - Reloading the integration stops the previous MQTT connection. Upstream leaves one running per reload.
 > - A failed login no longer writes the hOn password to the log.
 > - Pressing "Show Device Info" on an oven with assisted cooking no longer crashes Home Assistant. pyhon tried to list all 10 billion values of the `assistedCookingSession` setting and ran out of memory.
 > - "Create Data Archive" offers its zip through a signed link that appears only in Home Assistant and expires after 10 minutes. Upstream saves the zip under `/local/`, which Home Assistant serves to anyone, without a login and without expiry.
-> - "Show Device Info", the data archive and "Download diagnostics" mask the Haier customer number (`sfPersonAccountId`, which the camera repeats as its `userId`). Upstream leaves it in all three, and its "Show Device Info" also shows the account ID, the phone ID and the appliance's name.
+> - "Show Device Info", the data archive and "Download diagnostics" mask the Haier customer number (`sfPersonAccountId`, which the camera repeats as its `userId`), and "Show Device Info" also masks the account ID, the phone ID and the appliance's name.
 > - Sensors show codes missing from their value list instead of failing to update. Empty values and the -38 °C that some fridges report without a reading show as unknown.
 > - Fixes for the air purifier "On" sensor and for AC units without an on/off setting (AD50, AD71).
 > - Dishwasher and air purifier lights load again ([#52](https://github.com/mmalolepszy/hon-revived/issues/52)), and the per-cycle energy and water sensors of washers and dishwashers no longer log "impossible state class" warnings ([#71](https://github.com/mmalolepszy/hon-revived/issues/71)).
 > - Water heater support ([#47](https://github.com/mmalolepszy/hon-revived/pull/47)) and the washing machine program code sensor ([#54](https://github.com/mmalolepszy/hon-revived/pull/54)) from open upstream pull requests.
-> - Setup no longer stops with `AttributeError: 'str' object has no attribute 'items'` on appliances whose hOn rules hold a limit without a type, such as ovens with a meat probe ([#1](https://github.com/corautem/hon-revived/issues/1)). pyhon-revived fixed this on its main branch, but no pyhon-revived release includes it yet.
 > - pyhon applies the hOn rule that sets a program's probe option when the meat probe is connected. pyhon gave that rule the condition of a neighbouring rule, so it never applied.
 > - Climate entities use the temperature names of Home Assistant 2026.11, so Home Assistant no longer logs four deprecation warnings at start-up.
 > - Requires Home Assistant 2026.11.0 or newer. On an older version, hOn shows a message under **Settings** > **System** > **Repairs** and does not load. Release v0.19.2.6 is the last for Home Assistant 2026.7 to 2026.10.
@@ -857,15 +856,15 @@ Check out the [project on GitHub](https://github.com/mmalolepszy/hon-revived), e
 |-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 
 ## Useful Links
-* [GitHub repository](https://github.com/mmalolepszy/hon-revived)
-* [pyhOn library](https://github.com/mmalolepszy/pyhOn)
-* [Release notes](https://github.com/mmalolepszy/hon-revived/releases)
-* [Discussion and help](https://github.com/mmalolepszy/hon-revived/discussions)
-* [Issues](https://github.com/mmalolepszy/hon-revived/issues)
+* [This fork on GitHub](https://github.com/corautem/hon-revived)
+* [Release notes](https://github.com/corautem/hon-revived/releases)
+* [Issues](https://github.com/corautem/hon-revived/issues)
+* [Upstream hon-revived](https://github.com/mmalolepszy/hon-revived), the source of this fork
+* [pyhon-revived](https://github.com/mmalolepszy/pyhon-revived), the library the integration uses
 
 ## Support
-If you find this project helpful and would like to support its development, you can buy me a coffee! ☕
+If this fork is useful to you, a star on GitHub (the Star button at the top of the repository page) helps other people find it. If you'd like to support the work on the fork, you can do so through [GitHub Sponsors](https://github.com/sponsors/corautem) or on [Ko-fi](https://ko-fi.com/corautem).
 
-[!["Buy Me A Coffee"](https://www.buymeacoffee.com/assets/img/custom_images/orange_img.png)](https://www.buymeacoffee.com/mmalolepszy)
+The fork adds its fixes on top of [hon-revived](https://github.com/mmalolepszy/hon-revived) by mmalolepszy, which continues the hOn integration that [Andre0512](https://github.com/Andre0512) created. To support that work, use mmalolepszy's [Buy Me a Coffee page](https://www.buymeacoffee.com/mmalolepszy).
 
-Don't forget to star the repository if you found it useful! ⭐
+- **Bugs, questions and feature ideas for this fork:** [its issue tracker](https://github.com/corautem/hon-revived/issues).
