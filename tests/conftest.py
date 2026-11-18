@@ -7,18 +7,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 import pytest
 from aiohttp import ContentTypeError, RequestInfo
 from multidict import CIMultiDict, CIMultiDictProxy
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 from yarl import URL
 
 from custom_components.hon.const import DOMAIN
 
 EMAIL = "user@example.com"
 PASSWORD = "hunter2"
-
-
-@pytest.fixture(autouse=True)
-def auto_enable_custom_integrations(enable_custom_integrations: None) -> None:
-    """Load the integration from custom_components."""
 
 
 class FakeAppliance:
@@ -43,7 +38,14 @@ class FakeAppliance:
         self.additional_data: dict[str, Any] = {}
 
     def get(self, item: str, default: Any = None) -> Any:
-        return self.data.get(item, default)
+        # Like HonAppliance, a dotted key such as "settings.tempSelZ1" reads
+        # a nested value
+        value: Any = self.data
+        for key in item.split("."):
+            if not isinstance(value, dict) or key not in value:
+                return default
+            value = value[key]
+        return value
 
 
 class FakeHon:

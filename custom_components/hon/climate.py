@@ -133,6 +133,7 @@ async def async_setup_entry(
 class HonACClimateEntity(HonEntity, ClimateEntity):
     entity_description: HonACClimateEntityDescription
     _enable_turn_on_off_backwards_compatibility = False
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
 
     def __init__(
         self,
@@ -143,7 +144,6 @@ class HonACClimateEntity(HonEntity, ClimateEntity):
     ) -> None:
         super().__init__(hass, entry, device, description)
 
-        self._attr_temperature_unit = UnitOfTemperature.CELSIUS
         self._set_temperature_bound()
 
         self._attr_hvac_modes = [HVACMode.OFF]
@@ -178,12 +178,12 @@ class HonACClimateEntity(HonEntity, ClimateEntity):
         self._attr_min_temp = temperature.min
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         """Return the temperature we try to reach."""
         return self._device.get("tempSel", 0.0)
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         """Return the current temperature."""
         return self._device.get("tempIndoor", 0.0)
 
@@ -374,6 +374,7 @@ class HonACClimateEntity(HonEntity, ClimateEntity):
 class HonClimateEntity(HonEntity, ClimateEntity):
     entity_description: HonClimateEntityDescription
     _enable_turn_on_off_backwards_compatibility = False
+    _attr_native_temperature_unit = UnitOfTemperature.CELSIUS
 
     def __init__(
         self,
@@ -388,7 +389,6 @@ class HonClimateEntity(HonEntity, ClimateEntity):
             ClimateEntityFeature.TURN_ON | ClimateEntityFeature.TARGET_TEMPERATURE
         )
 
-        self._attr_temperature_unit = UnitOfTemperature.CELSIUS
         self._set_temperature_bound()
 
         self._attr_hvac_modes = [description.mode]
@@ -417,12 +417,12 @@ class HonClimateEntity(HonEntity, ClimateEntity):
         self._handle_coordinator_update(update=False)
 
     @property
-    def target_temperature(self) -> float | None:
+    def native_target_temperature(self) -> float | None:
         """Return the temperature we try to reach."""
         return self._device.get(self.entity_description.key, 0.0)
 
     @property
-    def current_temperature(self) -> float | None:
+    def native_current_temperature(self) -> float | None:
         """Return the current temperature."""
         temp_key = self.entity_description.key.split(".")[-1].replace("Sel", "")
         temperature = self._device.get(temp_key, 0.0)

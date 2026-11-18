@@ -1,6 +1,6 @@
 # Haier hOn Revived
 
-[![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://hacs.xyz)
+[![Marketplace custom repository](https://img.shields.io/badge/Marketplace-custom%20repository-41BDF5.svg)](https://www.home-assistant.io/integrations/marketplace/#custom-repositories)
 [![GitHub release (latest by date)](https://img.shields.io/github/v/release/corautem/hon-revived?color=green)](https://github.com/corautem/hon-revived/releases/latest)
 [![GitHub latest release](https://img.shields.io/github/downloads/corautem/hon-revived/latest/total?color=blue&label=downloads)](https://tooomm.github.io/github-release-stats/?username=corautem&repository=hon-revived)
 [![GitHub all releases](https://img.shields.io/github/downloads/corautem/hon-revived/total?color=blue&label=total%20downloads)](https://tooomm.github.io/github-release-stats/?username=corautem&repository=hon-revived)
@@ -13,7 +13,7 @@ Home Assistant integration for [Haier's mobile app hOn](https://hon-smarthome.co
 It is an attempt to try to maintain an awesome integration created originally by [Andre0512](https://github.com/Andre0512).
 
 > [!NOTE]
-> This is [corautem](https://github.com/corautem)'s fork of [mmalolepszy/hon-revived](https://github.com/mmalolepszy/hon-revived). It is synced with upstream and carries changes that upstream has not merged yet. It uses the same `hon` domain and the same entity unique IDs, so you can switch between this fork and upstream in HACS and keep your entities, history and automations.
+> This is [corautem](https://github.com/corautem)'s fork of [mmalolepszy/hon-revived](https://github.com/mmalolepszy/hon-revived). It is synced with upstream and carries changes that upstream has not merged yet. It uses the same `hon` domain and the same entity unique IDs, so you can switch between this fork and upstream in the Marketplace (HACS before Home Assistant 2026.11) and keep your entities, history and automations.
 >
 > Changes compared with upstream v0.19.2:
 > - Oven meat probe battery, signal and connection entities. Battery and signal keep their values while the probe charges in its holder, and the probe temperature shows unknown there instead of 0 °C.
@@ -27,17 +27,31 @@ It is an attempt to try to maintain an awesome integration created originally by
 > - Fixes for the air purifier "On" sensor and for AC units without an on/off setting (AD50, AD71).
 > - Dishwasher and air purifier lights load again ([#52](https://github.com/mmalolepszy/hon-revived/issues/52)), and the per-cycle energy and water sensors of washers and dishwashers no longer log "impossible state class" warnings ([#71](https://github.com/mmalolepszy/hon-revived/issues/71)).
 > - Water heater support ([#47](https://github.com/mmalolepszy/hon-revived/pull/47)) and the washing machine program code sensor ([#54](https://github.com/mmalolepszy/hon-revived/pull/54)) from open upstream pull requests.
-> - Requires Home Assistant 2026.7 or newer.
+> - Setup no longer stops with `AttributeError: 'str' object has no attribute 'items'` on appliances whose hOn rules hold a limit without a type, such as ovens with a meat probe ([#1](https://github.com/corautem/hon-revived/issues/1)). pyhon-revived fixed this on its main branch, but no pyhon-revived release includes it yet.
+> - pyhon applies the hOn rule that sets a program's probe option when the meat probe is connected. pyhon gave that rule the condition of a neighbouring rule, so it never applied.
+> - Climate entities use the temperature names of Home Assistant 2026.11, so Home Assistant no longer logs four deprecation warnings at start-up.
+> - Requires Home Assistant 2026.11.0 or newer. On an older version, hOn shows a message under **Settings** > **System** > **Repairs** and does not load. Release v0.19.2.6 is the last for Home Assistant 2026.7 to 2026.10.
 >
 > Report problems with this fork in [its issue tracker](https://github.com/corautem/hon-revived/issues).
 
 ---
 
 ## Installation
-**Method 1:** 
-1. Add https://github.com/corautem/hon-revived with the category "integration" as a custom repository in HACS
-2. Install it in HACS
-3. Restart Home Assistant
+**Method 1: Marketplace**, built into Home Assistant from 2026.11
+1. Go to **Settings** > **Marketplace** and select **Add from link** in the upper-right corner.
+2. Enter `https://github.com/corautem/hon-revived` and select **Add**. The first time you add a repository, the Marketplace asks you to connect GitHub.
+3. Open **Haier hOn Revived** in the list and select **Install**. The setup page of the integration opens when the installation is complete.
+
+<details>
+<summary>Home Assistant 2026.7 to 2026.10: HACS</summary>
+
+Release v0.19.2.6 is the last for these Home Assistant releases.
+
+1. Add https://github.com/corautem/hon-revived with the category "integration" as a custom repository in HACS.
+2. Install release v0.19.2.6 in HACS.
+3. Restart Home Assistant.
+
+</details>
 
 **Method 2:**
 1. Manually copy `hon` folder from [latest release](https://github.com/corautem/hon-revived/releases/latest) to `config/custom_components` folder.

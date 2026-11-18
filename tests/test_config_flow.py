@@ -10,7 +10,7 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.data_entry_flow import FlowResultType
 from pyhon.exceptions import HonAuthenticationError
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.hon.const import DOMAIN
 

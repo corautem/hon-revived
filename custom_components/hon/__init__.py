@@ -5,13 +5,25 @@ from typing import Any
 
 from aiohttp import ClientError
 from homeassistant.config_entries import ConfigEntry
-from homeassistant.const import CONF_EMAIL, CONF_PASSWORD, EVENT_HOMEASSISTANT_STOP
+from homeassistant.const import (
+    CONF_EMAIL,
+    CONF_PASSWORD,
+    EVENT_HOMEASSISTANT_STOP,
+    MAJOR_VERSION,
+    MINOR_VERSION,
+    __version__ as HA_VERSION,
+)
 from homeassistant.core import Event, HomeAssistant, callback
-from homeassistant.exceptions import ConfigEntryAuthFailed, ConfigEntryNotReady
+from homeassistant.exceptions import (
+    ConfigEntryAuthFailed,
+    ConfigEntryError,
+    ConfigEntryNotReady,
+)
 from homeassistant.helpers import (
     aiohttp_client,
     config_validation as cv,
     entity_registry as er,
+    issue_registry as ir,
 )
 from homeassistant.helpers.typing import ConfigType
 from homeassistant.helpers.update_coordinator import DataUpdateCoordinator
@@ -25,6 +37,11 @@ from .export import HonDataArchiveView
 _LOGGER = logging.getLogger(__name__)
 
 CONFIG_SCHEMA = cv.config_entry_only_config_schema(DOMAIN)
+
+# Home Assistant 2026.11 renamed the climate temperature properties to
+# native_*, and older versions don't know the new names
+MIN_HA_VERSION = (2026, 11)
+UNSUPPORTED_HA_ISSUE = "unsupported_home_assistant"
 
 # 0.19.2.1 and 0.19.2.2 read the probe battery and signal from the probe in
 # use, which reports 0 and -128 while the probe sits in its holder
@@ -48,6 +65,7 @@ async def async_setup(hass: HomeAssistant, config: ConfigType) -> bool:
 
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
+    check_ha_version(hass)
     # A dedicated session keeps the hOn login cookies out of the shared one.
     # Home Assistant detaches it when the entry is unloaded.
     session = aiohttp_client.async_create_clientsession(hass)
@@ -101,6 +119,26 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
 
     return True
+
+
+def check_ha_version(hass: HomeAssistant) -> None:
+    """Stop with a Repairs issue on Home Assistant older than MIN_HA_VERSION."""
+    if (MAJOR_VERSION, MINOR_VERSION) >= MIN_HA_VERSION:
+        ir.async_delete_issue(hass, DOMAIN, UNSUPPORTED_HA_ISSUE)
+        return
+    required = "{}.{}.0".format(*MIN_HA_VERSION)
+    ir.async_create_issue(
+        hass,
+        DOMAIN,
+        UNSUPPORTED_HA_ISSUE,
+        is_fixable=False,
+        severity=ir.IssueSeverity.ERROR,
+        translation_key=UNSUPPORTED_HA_ISSUE,
+        translation_placeholders={"required": required, "installed": HA_VERSION},
+    )
+    raise ConfigEntryError(
+        f"hOn needs Home Assistant {required} or newer, this is {HA_VERSION}"
+    )
 
 
 async def async_migrate_entities(hass: HomeAssistant, entry: ConfigEntry) -> None:

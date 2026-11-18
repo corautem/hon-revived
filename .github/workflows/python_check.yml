@@ -18,13 +18,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        include:
-          # Oldest release in hacs.json and the current one. Each version of
-          # pytest-homeassistant-custom-component pins one Home Assistant release.
-          - home-assistant: "2026.7.4"
-            test-plugin: "0.13.348"
-          - home-assistant: "2026.9.4"
-            test-plugin: "0.13.367"
+        # Oldest release in hacs.json and the current one. pytest-homeassistant
+        # is released with Home Assistant and pins the release of the same number.
+        home-assistant: ["2026.11.0", "2026.11.2"]
 
     steps:
       - name: Check out repository
@@ -39,10 +35,10 @@ jobs:
 
       - name: Install dependencies
         env:
-          TEST_PLUGIN: ${{ matrix.test-plugin }}
+          HOME_ASSISTANT: ${{ matrix.home-assistant }}
         run: |
           python -m pip install --upgrade pip
-          python -m pip install "pytest-homeassistant-custom-component==$TEST_PLUGIN" \
+          python -m pip install "pytest-homeassistant==$HOME_ASSISTANT" \
             -r requirements.txt -r requirements_dev.txt
 
       - name: Check black style

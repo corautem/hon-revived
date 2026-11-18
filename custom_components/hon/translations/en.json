@@ -2406,5 +2406,11 @@
             "already_configured": "This hOn account is already set up.",
             "reauth_successful": "Signed in again. The integration is reloading."
         }
+    },
+    "issues": {
+        "unsupported_home_assistant": {
+            "title": "hOn needs Home Assistant {required} or newer",
+            "description": "This version of the hOn integration needs Home Assistant {required} or newer. This system runs Home Assistant {installed}, so hOn has not been loaded and its devices are unavailable.\n\nUpdate Home Assistant; hOn loads again when Home Assistant restarts. To stay on Home Assistant {installed}, install hOn version 0.19.2.6 instead, which supports Home Assistant 2026.7.0 to 2026.10."
+        }
     }
 }

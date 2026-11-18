@@ -3,7 +3,7 @@
 from homeassistant.const import STATE_ON
 from homeassistant.core import HomeAssistant
 from pyhon.parameter.range import HonParameterRange
-from pytest_homeassistant_custom_component.common import MockConfigEntry
+from pytest_homeassistant.common import MockConfigEntry
 
 from .conftest import FakeAppliance, FakeHon
 
