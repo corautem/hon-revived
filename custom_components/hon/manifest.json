@@ -16,7 +16,7 @@
     "pyhon"
   ],
   "requirements": [
-    "pyhon-revived==0.19.2"
+    "pyhon-revived==0.19.4"
   ],
   "version": "0.19.2.7"
 }
