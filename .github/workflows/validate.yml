@@ -1,6 +1,10 @@
 name: Validate with hassfest
 
+# The hassfest image has no version tag, so the weekly run picks up new
+# Home Assistant rules even when nothing here changes.
 on:
+  schedule:
+    - cron: "17 6 * * 1" # Mondays at 06:17 UTC
   workflow_dispatch:
   push:
   pull_request:
