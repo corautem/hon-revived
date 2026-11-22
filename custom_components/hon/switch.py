@@ -27,6 +27,9 @@ class HonControlSwitchEntityDescription(SwitchEntityDescription):
     use_only_mandatory_params: bool = False
     on_value: bool | float = True
     off_value: bool | float = False
+    # machMode values for which the switch is on. When set, the switch follows
+    # the appliance's reported mode instead of hOn's sticky "activity" flag.
+    on_mach_modes: tuple[int, ...] | None = None
 
 
 class HonControlWhSwitchEntityDescription(HonControlSwitchEntityDescription):
@@ -52,6 +55,8 @@ SWITCHES: dict[str, tuple[SwitchEntityDescription, ...]] = {
             turn_on_key="startProgram",
             turn_off_key="stopProgram",
             translation_key="washing_machine",
+            # running, paused, delayed start (selected / counting down), stopping
+            on_mach_modes=(2, 3, 4, 5, 9),
         ),
         HonControlSwitchEntityDescription(
             key="pause",
@@ -160,6 +165,8 @@ SWITCHES: dict[str, tuple[SwitchEntityDescription, ...]] = {
             turn_on_key="startProgram",
             turn_off_key="stopProgram",
             translation_key="tumble_dryer",
+            # running, paused, delayed start (selected / counting down), stopping
+            on_mach_modes=(2, 3, 4, 5, 9),
         ),
         HonControlSwitchEntityDescription(
             key="pause",
@@ -217,6 +224,8 @@ SWITCHES: dict[str, tuple[SwitchEntityDescription, ...]] = {
             turn_on_key="startProgram",
             turn_off_key="stopProgram",
             translation_key="washer_dryer",
+            # running, paused, delayed start (selected / counting down), stopping
+            on_mach_modes=(2, 3, 4, 5, 9),
         ),
         HonControlSwitchEntityDescription(
             key="pause",
@@ -513,10 +522,23 @@ class HonSwitchEntity(HonEntity, SwitchEntity):
 class HonControlSwitchEntity(HonEntity, SwitchEntity):
     entity_description: HonControlSwitchEntityDescription
 
+    def _mach_mode(self) -> int | None:
+        """Return the appliance's machMode when this switch follows it."""
+        if self.entity_description.on_mach_modes is None:
+            return None
+        try:
+            return int(self._device.get("machMode"))
+        except (TypeError, ValueError):
+            return None
+
     @property
     def is_on(self) -> bool | None:
         """Return True if entity is on."""
         desc = self.entity_description
+        if (mach_mode := self._mach_mode()) is not None:
+            # hOn's "activity" flag stays set after a cycle ends while the
+            # machine is still on, so use the mode the appliance reports.
+            return mach_mode in (desc.on_mach_modes or ())
         return self._device.get(desc.key, desc.off_value) == desc.on_value
 
     def do_sync_command(self, cmd_name: str, key: str) -> None:
@@ -529,7 +551,8 @@ class HonControlSwitchEntity(HonEntity, SwitchEntity):
         await self._device.commands[desc.turn_on_key].send(
             desc.use_only_mandatory_params
         )
-        self._device.attributes[desc.key] = desc.on_value
+        if self._mach_mode() is None:
+            self._device.attributes[desc.key] = desc.on_value
         self.schedule_update_ha_state()
 
     async def async_turn_off(self, **kwargs: Any) -> None:
@@ -539,7 +562,8 @@ class HonControlSwitchEntity(HonEntity, SwitchEntity):
         await self._device.commands[desc.turn_off_key].send(
             desc.use_only_mandatory_params
         )
-        self._device.attributes[desc.key] = desc.off_value
+        if self._mach_mode() is None:
+            self._device.attributes[desc.key] = desc.off_value
         self.schedule_update_ha_state()
 
     @property
