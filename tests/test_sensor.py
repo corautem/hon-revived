@@ -1,9 +1,14 @@
 """Tests for hOn sensor and binary sensor entities."""
 
+from unittest.mock import MagicMock
+
 import pytest
 from homeassistant.const import PERCENTAGE, STATE_OFF, STATE_ON, STATE_UNKNOWN
 from homeassistant.core import HomeAssistant
 from homeassistant.helpers import entity_registry as er
+from pyhon.appliances.ov import Appliance as OvenAppliance
+from pyhon.attributes import HonAttribute
+from pyhon.parameter.program import HonParameterProgram
 from pytest_homeassistant.common import MockConfigEntry
 
 from custom_components.hon.const import DOMAIN
@@ -288,3 +293,49 @@ async def test_fridge_zone_without_reading_is_unknown(
 
     assert hass.states.get("sensor.ref_fridge_temperature").state == STATE_UNKNOWN
     assert hass.states.get("sensor.ref_freezer_temperature").state == "-18"
+
+
+async def test_status_values_follow_mqtt_updates(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    fake_hon: FakeHon,
+    appliances: list[FakeAppliance],
+) -> None:
+    # pyhon sets programName and active when it polls; MQTT updates change
+    # prCode and onOffStatus only
+    parameters = {"prCode": HonAttribute("0"), "onOffStatus": HonAttribute("0")}
+    oven = FakeAppliance("OV", {"parameters": parameters})
+    oven.attributes = oven.data  # HonAppliance.get reads the attributes too
+    oven.settings["startProgram.program"] = MagicMock(
+        spec=HonParameterProgram, ids={5: "conventional"}, values=["conventional"]
+    )
+    oven._extra = OvenAppliance(oven)
+    oven._extra.attributes(oven.attributes)  # what pyhon does when it polls
+    appliances.append(oven)
+    await setup_integration(hass, config_entry)
+    assert hass.states.get("sensor.ov_program").state == "No Program"
+    assert oven.attributes["active"] is False
+
+    parameters["prCode"].update({"parNewVal": "5"})
+    parameters["onOffStatus"].update({"parNewVal": "1"})
+    await push_update(hass, fake_hon)
+    assert hass.states.get("sensor.ov_program").state == "conventional"
+    assert oven.attributes["active"] is True
+
+
+@pytest.mark.parametrize(
+    ("value", "state"), [("0", STATE_OFF), ("1", STATE_ON), ("2", STATE_ON)]
+)
+async def test_oven_preheat(
+    hass: HomeAssistant,
+    config_entry: MockConfigEntry,
+    fake_hon: FakeHon,
+    appliances: list[FakeAppliance],
+    value: str,
+    state: str,
+) -> None:
+    parameters = {"preheatStatus": HonAttribute(value)}
+    appliances.append(FakeAppliance("OV", {"attributes": {"parameters": parameters}}))
+    await setup_integration(hass, config_entry)
+
+    assert hass.states.get("binary_sensor.ov_pre_heat").state == state

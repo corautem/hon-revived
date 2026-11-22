@@ -19,7 +19,7 @@ _LOGGER = logging.getLogger(__name__)
 
 @dataclass(frozen=True)
 class HonBinarySensorEntityDescription(BinarySensorEntityDescription):
-    on_value: str | float = ""
+    on_value: str | float | tuple[str | float, ...] = ""
 
 
 BINARY_SENSORS: dict[str, tuple[HonBinarySensorEntityDescription, ...]] = {
@@ -148,7 +148,9 @@ BINARY_SENSORS: dict[str, tuple[HonBinarySensorEntityDescription, ...]] = {
             key="attributes.parameters.preheatStatus",
             name="Pre-Heat",
             device_class=BinarySensorDeviceClass.RUNNING,
-            on_value=1,
+            # The H6 ID25L5YTX's start command allows 0 and 2 (range 0-2,
+            # step 2); the oven that added this sensor reported 1
+            on_value=(1, 2),
             icon="mdi:thermometer-chevron-up",
             translation_key="pre_heat",
         ),
@@ -445,4 +447,5 @@ class HonBinarySensorEntity(HonEntity, BinarySensorEntity):
     def is_on(self) -> bool:
         attr = self._device.get(self.entity_description.key, None)
         value = attr.value if hasattr(attr, "value") else attr
-        return bool(value == self.entity_description.on_value)
+        on_value = self.entity_description.on_value
+        return value in on_value if isinstance(on_value, tuple) else value == on_value

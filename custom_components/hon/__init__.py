@@ -98,10 +98,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass, _LOGGER, config_entry=entry, name=DOMAIN
     )
 
+    @callback
+    def async_update(data: Any) -> None:
+        for appliance in hon.appliances:
+            # pyhon works out programName, active and pause from the status
+            # only when it polls, and this integration gets MQTT updates only
+            if extra := getattr(appliance, "_extra", None):
+                with suppress(KeyError, ValueError):  # a status pyhon can't read
+                    extra.attributes(appliance.attributes)
+        coordinator.async_set_updated_data(data)
+
     def notify(data: Any) -> None:
         # pyhon calls this from the MQTT client thread
         with suppress(RuntimeError):  # the event loop is closed on shutdown
-            hass.loop.call_soon_threadsafe(coordinator.async_set_updated_data, data)
+            hass.loop.call_soon_threadsafe(async_update, data)
 
     hon.subscribe_updates(notify)
 
