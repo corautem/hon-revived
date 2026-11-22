@@ -15,7 +15,7 @@ It is an attempt to try to maintain an awesome integration created originally by
 > [!NOTE]
 > This is [corautem](https://github.com/corautem)'s fork of [mmalolepszy/hon-revived](https://github.com/mmalolepszy/hon-revived). It is synced with upstream and carries changes that upstream has not merged yet. It uses the same `hon` domain and the same entity unique IDs, so you can switch between this fork and upstream in the Marketplace (HACS before Home Assistant 2026.11) and keep your entities, history and automations.
 >
-> Changes compared with upstream v0.19.5:
+> Changes compared with upstream v0.19.7:
 > - Oven meat probe battery, signal and connection entities. Battery and signal keep their values while the probe charges in its holder, and the probe temperature shows unknown there instead of 0 °C.
 > - When hOn stops accepting the saved password, Home Assistant asks for the new one. Upstream fails to load until the integration is removed and added again.
 > - Reloading the integration stops the previous MQTT connection. Upstream leaves one running per reload.
@@ -24,7 +24,6 @@ It is an attempt to try to maintain an awesome integration created originally by
 > - "Create Data Archive" offers its zip through a signed link that appears only in Home Assistant and expires after 10 minutes. Upstream saves the zip under `/local/`, which Home Assistant serves to anyone, without a login and without expiry.
 > - "Show Device Info", the data archive and "Download diagnostics" mask the Haier customer number (`sfPersonAccountId`, which the camera repeats as its `userId`), and "Show Device Info" also masks the account ID, the phone ID and the appliance's name.
 > - Sensors show codes missing from their value list instead of failing to update. Empty values and the -38 °C that some fridges report without a reading show as unknown.
-> - The program sensors, the oven's on/off switch, washer and dryer pause, water heater on/off and the fridge modes follow the appliance. Upstream sets them only at start-up: pyhon works them out when it polls hOn, and the integration gets its updates by MQTT.
 > - The oven's Pre-Heat sensor also turns on at 2, the value the H6 ID25L5YTX uses for preheat. Upstream turns it on only at 1.
 > - Fixes for the air purifier "On" sensor and for AC units without an on/off setting (AD50, AD71).
 > - Dishwasher and air purifier lights load again ([#52](https://github.com/mmalolepszy/hon-revived/issues/52)), and the per-cycle energy and water sensors of washers and dishwashers no longer log "impossible state class" warnings ([#71](https://github.com/mmalolepszy/hon-revived/issues/71)).

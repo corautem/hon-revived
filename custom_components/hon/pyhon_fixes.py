@@ -1,4 +1,4 @@
-"""Workarounds for bugs in the pinned pyhon-revived release (0.19.4).
+"""Workarounds for bugs in the pinned pyhon-revived release (0.19.6).
 
 Re-check each one when bumping pyhon-revived.
 """
